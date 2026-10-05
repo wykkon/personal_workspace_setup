@@ -7,13 +7,16 @@
 #   ./tools.sh              # install everything below
 #   ./tools.sh docker code  # install only the named tool(s)
 #
-# Known tools: docker kubectl gcloud vscode slack postman pycharm chromium spotify
+# Known tools: docker kubectl gcloud vscode slack postman pycharm chromium spotify gh
 #
 # Notes on choices made (see README for the apt-vs-"App Center"/snap
 # reasoning per tool):
 #   - docker       -> Docker's official apt repo; installs the Compose
 #                     plugin too, invoked as `docker compose` (not the old
 #                     standalone `docker-compose` binary).
+#   - gh           -> GitHub's official apt repo. Note: `gh auth login` only
+#                     authenticates against github.com - a separate SSH key
+#                     setup is still needed for Bitbucket/other hosts.
 #   - kubectl      -> Kubernetes' official apt repo (pkgs.k8s.io), pinned to
 #                     a minor version that will need bumping over time.
 #   - gcloud       -> Google Cloud's official apt repo.
@@ -205,7 +208,29 @@ install_spotify() {
   sudo snap install spotify
 }
 
-ORDER=(docker kubectl gcloud vscode slack postman pycharm chromium spotify)
+install_gh() {
+  if command -v gh >/dev/null 2>&1; then
+    echo "gh already installed, skipping"
+    return
+  fi
+  echo "==> Installing GitHub CLI"
+  sudo apt-get update
+  sudo apt-get install -y wget
+  sudo mkdir -p -m 755 /etc/apt/keyrings
+  out="$(mktemp)"
+  wget -nv -O"$out" https://cli.github.com/packages/githubcli-archive-keyring.gpg
+  sudo cp "$out" /etc/apt/keyrings/githubcli-archive-keyring.gpg
+  rm -f "$out"
+  sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+
+  sudo apt-get update
+  sudo apt-get install -y gh
+  echo "Installed. Run 'gh auth login' to authenticate against github.com."
+}
+
+ORDER=(docker kubectl gcloud vscode slack postman pycharm chromium spotify gh)
 declare -A INSTALLERS=(
   [docker]=install_docker
   [kubectl]=install_kubectl
@@ -216,6 +241,7 @@ declare -A INSTALLERS=(
   [pycharm]=install_pycharm
   [chromium]=install_chromium
   [spotify]=install_spotify
+  [gh]=install_gh
 )
 
 main() {

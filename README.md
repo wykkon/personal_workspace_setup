@@ -24,8 +24,8 @@ Miniconda) and then runs `link.sh` for you. Currently targets apt-based
 
 Installs (idempotent, safe to re-run): Docker Engine + Compose plugin,
 kubectl, Google Cloud CLI, VS Code, Slack, Postman, PyCharm, Chromium,
-Spotify. Where a tool is available both as an official apt/deb package and
-as an "App Center" (snap) build, the choice made here is:
+Spotify, GitHub CLI. Where a tool is available both as an official apt/deb
+package and as an "App Center" (snap) build, the choice made here is:
 
 | Tool     | Source                         | Why |
 |----------|--------------------------------|-----|
@@ -38,6 +38,7 @@ as an "App Center" (snap) build, the choice made here is:
 | PyCharm  | App Center / snap               | Published by JetBrains themselves. JetBrains retired the separate Community/Professional snaps in favor of one unified `pycharm` snap — free core, Pro features via trial/subscription |
 | Chromium | App Center / snap               | The standard path on Ubuntu today (apt just pulls the snap anyway) |
 | Spotify  | App Center / snap               | Published by Spotify themselves |
+| GitHub CLI (`gh`) | Official apt repo      | Run `gh auth login` after install to authenticate - note this only covers github.com, not Bitbucket or other hosts |
 
 See the comments at the top of `tools.sh` for the reasoning per tool, and
 pass tool names as arguments to install a subset.
